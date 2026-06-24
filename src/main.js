@@ -385,6 +385,15 @@ graph.onRelayout(() => {
   }, 80);
 });
 
+// ── Sidebar toggle ───────────────────────────────────────────────────────────
+const sidebarToggleBtn = document.getElementById('sidebar-toggle');
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const collapsed = sidebar.classList.toggle('collapsed');
+  sidebarToggleBtn.textContent = collapsed ? '›' : '‹';
+}
+sidebarToggleBtn.addEventListener('click', toggleSidebar);
+
 // ── View controls ────────────────────────────────────────────────────────────
 document.getElementById('reset-view-btn').addEventListener('click', () => graph.resetView());
 document.getElementById('toggle-grid-btn').addEventListener('click', () => graph.toggleGrid());
@@ -593,4 +602,5 @@ document.addEventListener('keydown', e => {
   if (inInput) return;
   const map = { v: 'select', p: 'pen', t: 'text', e: 'eraser', d: 'point' };
   if (map[e.key]) document.querySelector(`.tool-btn[data-tool="${map[e.key]}"]`)?.click();
+  if (e.key === '\\') toggleSidebar();
 });

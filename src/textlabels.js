@@ -11,13 +11,15 @@ export class TextLabels {
   // screenX/Y come from the click position inside the canvas-container.
   addLabel(text, screenX, screenY) {
     const { x, y } = this._screenToData(screenX, screenY);
+    const xa = this.plotEl._fullLayout?.xaxis;
+    const baseRange = xa ? Math.abs(xa.range[1] - xa.range[0]) : 20;
     const id = Date.now() + Math.random();
     const el = this._createElement(text, id);
     el.style.left = screenX + 'px';
     el.style.top  = screenY + 'px';
     this.layer.appendChild(el);
 
-    const entry = { id, el, text, x, y };
+    const entry = { id, el, text, x, y, baseRange, baseFontSize: 14 };
     this.labels.push(entry);
     this._makeDraggable(el, entry);
     return id;
@@ -25,10 +27,15 @@ export class TextLabels {
 
   // Call this after every pan/zoom so labels snap back to their graph point.
   reproject() {
+    const xa = this.plotEl._fullLayout?.xaxis;
+    const currentRange = xa ? Math.abs(xa.range[1] - xa.range[0]) : 20;
     for (const label of this.labels) {
       const { sx, sy } = this._dataToScreen(label.x, label.y);
       label.el.style.left = sx + 'px';
       label.el.style.top  = sy + 'px';
+      const scale = (label.baseRange || 20) / currentRange;
+      const fontSize = Math.max(6, Math.min(80, (label.baseFontSize || 14) * scale));
+      label.el.style.fontSize = fontSize + 'px';
     }
   }
 
@@ -39,7 +46,7 @@ export class TextLabels {
 
   // Returns labels in data-coordinate format for serialisation.
   getLabels() {
-    return this.labels.map(l => ({ text: l.text, x: l.x, y: l.y }));
+    return this.labels.map(l => ({ text: l.text, x: l.x, y: l.y, baseRange: l.baseRange, baseFontSize: l.baseFontSize }));
   }
 
   loadLabels(labels) {
@@ -55,7 +62,7 @@ export class TextLabels {
         el.style.left = sx + 'px';
         el.style.top  = sy + 'px';
         this.layer.appendChild(el);
-        const entry = { id, el, text: l.text, x: l.x, y: l.y };
+        const entry = { id, el, text: l.text, x: l.x, y: l.y, baseRange: l.baseRange || 20, baseFontSize: l.baseFontSize || 14 };
         this.labels.push(entry);
         this._makeDraggable(el, entry);
       }
