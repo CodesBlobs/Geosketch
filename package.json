@@ -1,0 +1,20 @@
+{
+  "name": "geosketch",
+  "version": "1.0.0",
+  "description": "Math graphing + annotation tool, embeddable in Notion",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vite build"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "mathjs": "^15.2.0",
+    "pg": "^8.22.0",
+    "plotly.js-dist-min": "^3.6.0"
+  },
+  "devDependencies": {
+    "vite": "^8.1.0",
+    "vercel": "^44.0.0"
+  }
+}

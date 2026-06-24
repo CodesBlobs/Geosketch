@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geosketch</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <div class="logo-row">
+        <div class="logo">Geosketch</div>
+        <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark mode">🌙</button>
+      </div>
+
+      <div class="section-label">Tools</div>
+      <div id="toolbar">
+        <button class="tool-btn active" data-tool="select" title="Select / Pan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-7 1-4 7z"/></svg>
+          <span>Select</span>
+        </button>
+        <button class="tool-btn" data-tool="pen" title="Pen / Draw">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span>Pen</span>
+        </button>
+        <button class="tool-btn" data-tool="text" title="Add Text">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+          <span>Text</span>
+        </button>
+        <button class="tool-btn" data-tool="eraser" title="Eraser">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l13-13 7 7-3 10zM6 11l7 7"/></svg>
+          <span>Eraser</span>
+        </button>
+        <button class="tool-btn" data-tool="point" title="Drop point — click anywhere on the graph (shortcut: d)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.5"/><line x1="12" y1="3" x2="12" y2="7" stroke="currentColor" stroke-width="2"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/><line x1="3" y1="12" x2="7" y2="12" stroke="currentColor" stroke-width="2"/><line x1="17" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/></svg>
+          <span>Point</span>
+        </button>
+      </div>
+
+      <div class="section-label">Pen Style</div>
+      <div id="pen-options">
+        <div class="color-row">
+          <button class="color-swatch active" data-color="#e74c3c" style="background:#e74c3c" title="Red"></button>
+          <button class="color-swatch" data-color="#3498db" style="background:#3498db" title="Blue"></button>
+          <button class="color-swatch" data-color="#2ecc71" style="background:#2ecc71" title="Green"></button>
+          <button class="color-swatch" data-color="#f39c12" style="background:#f39c12" title="Orange"></button>
+          <button class="color-swatch" data-color="#9b59b6" style="background:#9b59b6" title="Purple"></button>
+          <button class="color-swatch" data-color="#1a1a2e" style="background:#1a1a2e" title="Dark"></button>
+          <button class="color-swatch" data-color="#ffffff" style="background:#ffffff;border-color:#ccc" title="White"></button>
+        </div>
+        <div class="slider-row">
+          <label>Size</label>
+          <input type="range" id="pen-size" min="1" max="20" value="3" />
+          <span id="pen-size-val">3</span>
+        </div>
+        <div class="slider-row">
+          <label>Opacity</label>
+          <input type="range" id="pen-opacity" min="10" max="100" value="100" />
+          <span id="pen-opacity-val">100</span>
+        </div>
+      </div>
+
+      <div class="section-label">Functions</div>
+      <div id="function-list"></div>
+      <button id="add-fn-btn">+ Add function</button>
+
+      <div class="section-label">View</div>
+      <div id="view-controls">
+        <button id="reset-view-btn">Reset view</button>
+        <button id="toggle-grid-btn">Toggle grid</button>
+      </div>
+
+      <div class="section-label">Save &amp; Share</div>
+      <button id="save-btn" class="save-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save &amp; Get Link
+      </button>
+      <button id="embed-btn">Copy embed code</button>
+      <button id="export-btn">Export PNG</button>
+    </aside>
+
+    <main id="canvas-container">
+      <div id="plot"></div>
+      <canvas id="annotation-canvas"></canvas>
+      <div id="text-layer"></div>
+      <div id="sketch-badge" class="hidden"></div>
+    </main>
+  </div>
+
+  <!-- Text input popup -->
+  <div id="text-input-popup" class="hidden">
+    <textarea id="text-input-field" placeholder="Type here…" rows="2"></textarea>
+    <div class="popup-actions">
+      <button id="text-confirm-btn">Add</button>
+      <button id="text-cancel-btn">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Share modal -->
+  <div id="share-modal" class="hidden">
+    <div id="share-backdrop"></div>
+    <div id="share-box">
+      <div class="share-header">
+        <span class="share-title">Sketch saved!</span>
+        <button id="share-close-btn">×</button>
+      </div>
+      <p class="share-desc">Anyone with this link can view and interact with your sketch:</p>
+      <div class="share-url-row">
+        <input id="share-url" type="text" readonly />
+        <button id="share-copy-btn">Copy</button>
+      </div>
+      <p class="share-hint">Paste into Notion's <code>/embed</code> block to embed it on any page.</p>
+      <div class="share-actions">
+        <button id="share-open-btn">Open in new tab</button>
+        <button id="share-done-btn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="hidden"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
