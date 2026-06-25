@@ -22,7 +22,7 @@ document.querySelectorAll('.tool-btn').forEach(btn => {
 });
 
 function applyTool() {
-  const penActive = activeTool === 'pen' || activeTool === 'eraser';
+  const penActive = activeTool === 'pen' || activeTool === 'line' || activeTool === 'eraser';
   annotations.setActive(penActive);
   annotations.setTool(activeTool);
   const cursor = activeTool === 'text' ? 'text' : activeTool === 'point' ? 'crosshair' : 'default';
@@ -391,6 +391,8 @@ function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   const collapsed = sidebar.classList.toggle('collapsed');
   sidebarToggleBtn.textContent = collapsed ? '›' : '‹';
+  // After the CSS transition finishes, tell Plotly the canvas is a new size.
+  setTimeout(() => window.dispatchEvent(new Event('resize')), 240);
 }
 sidebarToggleBtn.addEventListener('click', toggleSidebar);
 
@@ -600,7 +602,7 @@ document.addEventListener('keydown', e => {
   }
 
   if (inInput) return;
-  const map = { v: 'select', p: 'pen', t: 'text', e: 'eraser', d: 'point' };
+  const map = { v: 'select', p: 'pen', l: 'line', t: 'text', e: 'eraser', d: 'point' };
   if (map[e.key]) document.querySelector(`.tool-btn[data-tool="${map[e.key]}"]`)?.click();
   if (e.key === '\\') toggleSidebar();
 });

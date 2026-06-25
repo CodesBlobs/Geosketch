@@ -16,7 +16,7 @@ export class AnnotationLayer {
     this.eraserSize = 20;
 
     this.active = false;
-    this.tool   = 'pen'; // 'pen' | 'eraser'
+    this.tool   = 'pen'; // 'pen' | 'line' | 'eraser'
 
     this._resize();
     window.addEventListener('resize', () => this._resize());
@@ -66,13 +66,21 @@ export class AnnotationLayer {
     }
     if (!this.current || e.buttons === 0) return;
     this.current.screenPts.push({ x, y });
-    this._drawLiveSegment();
+    if (this.tool === 'line') {
+      this._drawLineLive();
+    } else {
+      this._drawLiveSegment();
+    }
   }
 
   onPointerUp() {
     if (this.current && this.current.screenPts.length > 1) {
-      // Convert screen → data coords and commit to the graph engine.
-      const points = this.current.screenPts.map(p => this.graph.screenToData(p.x, p.y));
+      let pts = this.current.screenPts;
+      if (this.tool === 'line') {
+        // Only keep start and end — produces a perfectly straight segment
+        pts = [pts[0], pts[pts.length - 1]];
+      }
+      const points = pts.map(p => this.graph.screenToData(p.x, p.y));
       this.graph.addStroke({
         color: this.current.color,
         size:  this.current.size,
@@ -112,6 +120,25 @@ export class AnnotationLayer {
     ctx.beginPath();
     ctx.moveTo(p0.x, p0.y);
     ctx.lineTo(p1.x, p1.y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  _drawLineLive() {
+    const pts = this.current.screenPts;
+    const start = pts[0];
+    const end = pts[pts.length - 1];
+    // Clear first so the preview always shows the current straight line
+    this.clearLive();
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = this.current.opacity;
+    ctx.strokeStyle = this.current.color;
+    ctx.lineWidth = this.current.size;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(end.x, end.y);
     ctx.stroke();
     ctx.restore();
   }

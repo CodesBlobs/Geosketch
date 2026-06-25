@@ -1,6 +1,39 @@
 // Text labels stored in graph data-coordinates so they reproject correctly
 // when the user pans or zooms.
 
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/\n/g, '<br>');
+}
+
+// Render text with $...$ (inline) and $$...$$ (display) math via KaTeX.
+function renderMath(text) {
+  // Split on $$...$$ first, then $...$
+  const parts = text.split(/(\$\$[\s\S]*?\$\$|\$[^$\n]*?\$)/);
+  let html = '';
+  for (const part of parts) {
+    if (part.startsWith('$$') && part.endsWith('$$') && part.length > 4) {
+      try {
+        html += katex.renderToString(part.slice(2, -2), { displayMode: true, throwOnError: false });
+      } catch {
+        html += escapeHtml(part);
+      }
+    } else if (part.startsWith('$') && part.endsWith('$') && part.length > 2) {
+      try {
+        html += katex.renderToString(part.slice(1, -1), { displayMode: false, throwOnError: false });
+      } catch {
+        html += escapeHtml(part);
+      }
+    } else {
+      html += escapeHtml(part);
+    }
+  }
+  return html;
+}
+
 export class TextLabels {
   constructor(layerId, plotEl) {
     this.layer  = document.getElementById(layerId);
@@ -102,21 +135,53 @@ export class TextLabels {
     const el = document.createElement('div');
     el.className = 'text-label';
     el.dataset.text = text;
-    el.appendChild(document.createTextNode(text));
+
+    const content = document.createElement('span');
+    content.className = 'text-label-content';
+    content.innerHTML = renderMath(text);
+    el.appendChild(content);
 
     const del = document.createElement('button');
     del.className = 'delete-label';
     del.innerHTML = '×';
     del.addEventListener('click', e => { e.stopPropagation(); this.removeLabel(id); });
     el.appendChild(del);
+
+    const resizeHandle = document.createElement('div');
+    resizeHandle.className = 'resize-handle';
+    el.appendChild(resizeHandle);
+
     return el;
   }
 
   _makeDraggable(el, entry) {
     let startX, startY, origLeft, origTop, dragging = false;
+    let resizing = false, resizeStartY = 0, resizeStartSize = 14;
+
+    const resizeHandle = el.querySelector('.resize-handle');
+
+    resizeHandle.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      resizing = true;
+      resizeStartY = e.clientY;
+      resizeStartSize = entry.baseFontSize || 14;
+      resizeHandle.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+
+    resizeHandle.addEventListener('pointermove', e => {
+      if (!resizing) return;
+      const dy = e.clientY - resizeStartY;
+      const newSize = Math.max(8, Math.min(120, resizeStartSize + dy * 0.4));
+      entry.baseFontSize = newSize;
+      el.style.fontSize = newSize + 'px';
+    });
+
+    resizeHandle.addEventListener('pointerup', () => { resizing = false; });
 
     el.addEventListener('pointerdown', e => {
       if (e.target.classList.contains('delete-label')) return;
+      if (e.target.classList.contains('resize-handle')) return;
       dragging = true;
       startX = e.clientX; startY = e.clientY;
       origLeft = parseFloat(el.style.left) || 0;

@@ -24,6 +24,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           <span>Pen</span>
         </button>
+        <button class="tool-btn" data-tool="line" title="Straight line (shortcut: l)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="19" x2="19" y2="5"/></svg>
+          <span>Line</span>
+        </button>
         <button class="tool-btn" data-tool="text" title="Add Text">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
           <span>Text</span>
@@ -91,7 +95,7 @@
 
   <!-- Text input popup -->
   <div id="text-input-popup" class="hidden">
-    <textarea id="text-input-field" placeholder="Type here…" rows="2"></textarea>
+    <textarea id="text-input-field" placeholder="Type here… (use $…$ for math)" rows="2"></textarea>
     <div class="popup-actions">
       <button id="text-confirm-btn">Add</button>
       <button id="text-cancel-btn">Cancel</button>
