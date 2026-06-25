@@ -25,6 +25,7 @@ function applyTool() {
   const penActive = activeTool === 'pen' || activeTool === 'line' || activeTool === 'eraser';
   annotations.setActive(penActive);
   annotations.setTool(activeTool);
+  graph.setActiveTool(activeTool);
   const cursor = activeTool === 'text' ? 'text' : activeTool === 'point' ? 'crosshair' : 'default';
   document.getElementById('canvas-container').style.cursor = cursor;
   document.getElementById('plot').style.pointerEvents = penActive ? 'none' : 'all';
