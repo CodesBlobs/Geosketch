@@ -85,6 +85,7 @@ export class GraphEngine {
     this.layout = buildLayout('dark');
     this._dragging = false;
     this._activeTool = 'select';
+    this._showCoords = false;
     // Track drag in capture phase so it's set before any child handlers fire
     window.addEventListener('mousedown', () => { this._dragging = true; },  true);
     window.addEventListener('mouseup',   () => { this._dragging = false; }, true);
@@ -102,6 +103,7 @@ export class GraphEngine {
   }
 
   setActiveTool(tool) { this._activeTool = tool; }
+  setShowCoords(val) { this._showCoords = val; }
 
   // ── Custom smooth hover ───────────────────────────────────────────────────
 
@@ -117,8 +119,8 @@ export class GraphEngine {
 
     // Use window capture-phase so Plotly's stopPropagation can't swallow the event
     window.addEventListener('mousemove', e => {
-      // Only show the coordinate tip in select or point mode
-      if (this._activeTool !== 'select' && this._activeTool !== 'point') {
+      // Only show the coordinate tip when enabled and in select or point mode
+      if (!this._showCoords || (this._activeTool !== 'select' && this._activeTool !== 'point')) {
         tip.style.display = 'none';
         this.hoverState.active = false;
         return;

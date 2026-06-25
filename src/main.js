@@ -401,6 +401,16 @@ sidebarToggleBtn.addEventListener('click', toggleSidebar);
 document.getElementById('reset-view-btn').addEventListener('click', () => graph.resetView());
 document.getElementById('toggle-grid-btn').addEventListener('click', () => graph.toggleGrid());
 
+let _showCoords = false;
+document.getElementById('toggle-coords-btn').addEventListener('click', () => {
+  _showCoords = !_showCoords;
+  graph.setShowCoords(_showCoords);
+  const btn = document.getElementById('toggle-coords-btn');
+  btn.textContent = _showCoords ? 'Hide coordinates' : 'Show coordinates';
+  btn.style.borderColor = _showCoords ? 'var(--accent)' : '';
+  btn.style.color = _showCoords ? 'var(--accent)' : '';
+});
+
 // ── Serialise / deserialise full sketch state ─────────────────────────────────
 function getSketchState() {
   const layout = document.getElementById('plot')._fullLayout;
